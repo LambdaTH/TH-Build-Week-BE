@@ -1,3 +1,4 @@
 .env
 hunger_games/db.sqlite3
 .vscode/settings.json
+hunger_games/treasure_hunt/migrations
