@@ -153,7 +153,7 @@ def advfunc():
 
     # get the response
         data = move_player(next_direction)
-        # print('*************', data)
+        print('*************', data)
         # load rooms to database
         new_room = Room(title=data['title'], id=data['room_id'], description=data['description'])
         # new_room.save()

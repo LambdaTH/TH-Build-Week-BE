@@ -3,7 +3,7 @@ import requests
 import time
 from decouple import config
 
-TOKEN = config("TOKEN")
+TOKEN = config('TOKEN')
 
 api_token = TOKEN
 api_url_base = 'https://lambda-treasure-hunt.herokuapp.com/api/adv/'
@@ -12,7 +12,7 @@ api_url_base = 'https://lambda-treasure-hunt.herokuapp.com/api/adv/'
 
 def get_data():
     headers = {'Content-Type': 'application/json',
-           'Authorization': f'Token {api_token}'}
+           'Authorization': f'Token {TOKEN}'}
 
     api_url = '{0}account/keys'.format(api_url_base + 'init/')
 
@@ -30,7 +30,7 @@ def get_data():
 
 def move_player(route):
     headers = {'Content-Type': 'application/json',
-           'Authorization': f'Token {api_token}'}
+           'Authorization': f'Token {TOKEN}'}
 
     api_url = '{0}account/keys'.format(api_url_base + 'move/')
 
