@@ -24,13 +24,13 @@ currentRoom_data = api_request('/init', "GET")
 while len(traversalGraph) < 500:
     currentRoom = currentRoom_data['room_id']
     print(currentRoom_data)
-    
-    # write the new changes to the file
-    with open(my_file, "w") as f:
-        f.write(json.dumps(traversalGraph))
 
-    with open(my_file2, "w") as f:
-        f.write(json.dumps(room_details))
+    # write the new changes to the file
+    # with open(my_file, "w") as f:
+    #     f.write(json.dumps(traversalGraph))
+
+    # with open(my_file2, "w") as f:
+    #     f.write(json.dumps(room_details))
 
     if str(currentRoom) == '22' or str(currentRoom) == '461':
         print('you just prayed')
@@ -40,7 +40,7 @@ while len(traversalGraph) < 500:
         inventory = api_request('/status', "POST")
         if inventory['strength'] > inventory['encumbrance']:
             for item in currentRoom_data['items']:
-                api_request('/take', "POST", {"name":item})
+                api_request('/take', "POST", {"name": item})
                 print(f"picked up item - {item}")
 
     if currentRoom not in traversalGraph:
@@ -60,7 +60,8 @@ while len(traversalGraph) < 500:
             prev_cardinal = exit_cardinal
             stack.push(exit_cardinal)
             traversalPath.append(exit_cardinal)
-            currentRoom_data = api_request('/move', "POST", {"direction": exit_cardinal})
+            currentRoom_data = api_request(
+                '/move', "POST", {"direction": exit_cardinal})
             movement = True
             break
 
@@ -68,5 +69,5 @@ while len(traversalGraph) < 500:
         exit_cardinal = reverse_directions[stack.pop()]
         traversalPath.append(exit_cardinal)
         prev_cardinal = exit_cardinal
-        currentRoom_data = api_request('/move', "POST", {"direction": exit_cardinal})
- 
+        currentRoom_data = api_request(
+            '/move', "POST", {"direction": exit_cardinal})

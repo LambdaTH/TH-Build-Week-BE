@@ -13,6 +13,7 @@ def directionToRoom(room_map, currentRoomID, room_id):
             return d
     return None
 
+
 def find_path(room_map, room_details, currentRoomID, destinationRoomName):
     visited = set()
     paths = {}
@@ -41,7 +42,8 @@ def find_path(room_map, room_details, currentRoomID, destinationRoomName):
                 room_found = True
             if room_found:
                 actualPath = paths[searched_room_id]
-                directions = [directionToRoom(room_map, actualPath[i], actualPath[i + 1]) for i in range(len(actualPath) - 1)]
+                directions = [directionToRoom(
+                    room_map, actualPath[i], actualPath[i + 1]) for i in range(len(actualPath) - 1)]
                 return directions
             q.enqueue(searched_room_id)
     return None
@@ -55,7 +57,8 @@ def teleport(currentRoomID, destination_room_id):
     with open("room_graph.py", "r") as f:
         room_map = json.loads(f.read())
     # Traverse the map to find the path
-    path = find_path(room_map, room_details, currentRoomID, destination_room_id)
+    path = find_path(room_map, room_details,
+                     currentRoomID, destination_room_id)
     print(f"FOLLOW THIS PATH {path} TO ROOM {destination_room_id}")
     # If path not found, print "path to {destination_room_id} not found"
     if not path:
@@ -65,7 +68,7 @@ def teleport(currentRoomID, destination_room_id):
     for i in range(len(path)):
         next_room_id = room_map[currentRoomID][path[i]]
         data = api_request('/move', "POST", {
-                "direction": path[i], "next_room_id": next_room_id})
+            "direction": path[i], "next_room_id": next_room_id})
 
         print(data)
         currentRoomID = str(data['room_id'])
