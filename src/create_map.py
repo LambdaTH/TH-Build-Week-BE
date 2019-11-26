@@ -2,6 +2,12 @@ import json
 from utils import Queue, Stack
 from api import api_request
 
+import os
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+my_file = os.path.join(THIS_FOLDER, 'room_graph.py')
+my_file2 = os.path.join(THIS_FOLDER, 'room_details.py')
+
+
 traversalPath = []
 
 reverse_directions = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
@@ -20,10 +26,10 @@ while len(traversalGraph) < 500:
     print(currentRoom_data)
     
     # write the new changes to the file
-    with open("room_graph.py", "w") as f:
+    with open(my_file, "w") as f:
         f.write(json.dumps(traversalGraph))
 
-    with open("room_details.py", "w") as f:
+    with open(my_file2, "w") as f:
         f.write(json.dumps(room_details))
 
     if str(currentRoom) == '22' or str(currentRoom) == '461':
