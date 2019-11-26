@@ -1,9 +1,11 @@
 import json
 import requests
 import time
+from decouple import config
 
+TOKEN = config("TOKEN")
 
-api_token = '83efa02aa0e40572bd9b3be4978c781d02a1c55e'
+api_token = TOKEN
 api_url_base = 'https://lambda-treasure-hunt.herokuapp.com/api/adv/'
 # headers = {'Content-Type': 'application/json',
 #            'Authorization': 'Token {0}'.format(api_token)}
