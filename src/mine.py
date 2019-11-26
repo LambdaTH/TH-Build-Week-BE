@@ -52,10 +52,11 @@ def mine_coin():
         r = requests.post(url=base_url + "/mine",
                           headers={"Authorization": f"Token {TOKEN}"},
                           json={"proof": new_proof})
-
+        
         data = r.json()
-        message = data.get('messages')
-        if 'New Block Forged' in message:
+        
+        time.sleep(data['cooldown'])
+        if 'New Block Forged' in data['messages']:
             print(f"Coin mined in {end_time - start_time} secs")
             coin_mined += 1
         print(data)
