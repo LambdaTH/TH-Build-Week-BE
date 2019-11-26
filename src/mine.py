@@ -46,6 +46,7 @@ def mine_coin():
     while True:
         # Get new proof
         print('currently mining')
+        
         start_time = time.time()
         new_proof = proof_of_work(last_proof, difficulty)
         end_time = time.time()
