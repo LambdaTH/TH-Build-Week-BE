@@ -26,14 +26,13 @@ def get_data():
         return None
 
 
-def move_player(direction):
-    # direction = {'direction':'w'}
+def move_player(route):
     headers = {'Content-Type': 'application/json',
            'Authorization': f'Token {api_token}'}
 
     api_url = '{0}account/keys'.format(api_url_base + 'move/')
 
-    response = requests.post(api_url, headers=headers, json=direction)
+    response = requests.post(api_url, headers=headers, json={"direction": route})
     data = response.json()
 
     time.sleep(data['cooldown'])

@@ -3,118 +3,195 @@ from .models import Room
 from .util import Queue, Stack
 
 import random
+import json
+
+import os
+THIS_FOLDER = os.path.dirname(os.path.abspath(__file__))
+my_file = os.path.join(THIS_FOLDER, 'room_graph.py')
+my_file2 = os.path.join(THIS_FOLDER, 'room_details.py')
 
 
-# FILL THIS IN
-# traversalPath = ['n', 's']
 
-direction_reversed = {'n': 's', 's': 'n', 'e': 'w', 'w': 'e'}
+
+# cache room map
+room_map = {}
+
+# cache room details
+room_details = []
+
 traversalPath = []  # populate with n/s/e/w
-# make a visited rooms set
-visited = set()
-# add room 0 to visited rooms
-visited.add(0)
+
 # function to traverse graph
 # checks if any room around hasn't been seen
 def advfunc():
-    room = get_data()
-    print('=====', room)
-    new_room = Room(title=room['title'], id=room['room_id'], description=room['description'])
-    new_room.save()
-    print('+++++++', new_room)
-    # currentRoomID = get_data()['room_id']
-def checkRooms(currentRoomID):
-    # for any_room in roomGraph[currentRoomID]:
-    if room[currentRoomID] not in visited:
-        return False
-    else:
-        return True
+    # room = get_data()
+    # move = move_player('n')
+    # print('=====', room)
+    # print('*************', move)
+    # new_room = Room(title=room['title'], id=room['room_id'], description=room['description'])
+    # new_room.save()
+    # print('+++++++', new_room)
+    with open(my_file, "r") as f:
+    # read the map from room_graph file
+        room_map = json.loads(f.read())
+
+    with open(my_file2, "r") as f:
+    # read the map from room_details file
+        room_details = json.loads(f.read())
+
+# get players current room which is the last room in room details
+    currentRoomID = room_details[-1]['room_id']
+
+# get opposite directions
+    reverse_directions = {"n": "s", "s": "n", "e": "w", "w": "e"}
 
 # function to track unvisited rooms
 # goes into first unseen room around after traversing a path
-def trackNewRooms(currentRoomID):
-    for direction in direction_reversed:
-        if move_player(direction)['room_id'] not in visited:
-            visited.add(move_player(direction)['room_id'])
-            new_room = Room(title=room['title'], id=room['room_id'], description=room['description'])
-            new_room.save()
-            traversalPath.append(direction)
-            return move_player(direction)['room_id']
-    print('You shall not pass!!!!')
+    def trackNewRooms(queue):
+        """Finds the next unexplored room in the players current room
+        and adds it to the queue.
 
-# function to get directions
-def directionToRoom(currentRoom, room):
-    for path, location in roomGraph[currentRoom][1].items():
-        if location == room:
-            return path
-    return None
+        Arguments:
+        player {class} -- instance of the Player class
+        queue {class} -- instance of the Queue class
+        """
+        currentRoomID = str(room_details[-1]['room_id'])
+
+        # get exists in current room
+        currentRoom = room_map[currentRoomID]
+        # cache unvisited paths
+        unvisited_paths = []
+    
+    #loop through current room
+        for d in currentRoom:
+            if currentRoom[d] == '?':
+            # add to unvisited path
+                unvisited_paths.append(d)
+            # print('You shall not pass!!!!')
+    # if there are unvisted rooms
+        if unvisited_paths:
+        # add first room to queue
+            queue.enqueue(unvisited_paths[0])
+        else:
+        # trace back abd find other rooms
+            unvisited_path = stepBackToPrev()
+
+        # if there are unvisited rooms
+            if unvisited_path is not None:
+            # loop through the unvisited paths
+                for path in unvisited_path:
+                # check exits in current room
+                    for exit in currentRoom:
+                    # if path is in current room, enqueue
+                        if currentRoom[exit] == path:
+                            queue.enqueue(exit)
+
 
 # function to step back to previous rooms
-def stepBackToPrev():
+    def stepBackToPrev():
+        """Uses bft to find the path to the closest room with an unexplored
+        direction. When it finds one it returns the path. Returns None
+        when an unexplored direction can not be found
+
+        Arguments:
+            player {class} -- instance of the Player class
+
+        Returns:
+            list -- path to the room with an unexplored direction
+        """
+        q = Queue()
+        visitedRoom = set()
+    # enqueue the current room as a list
+        q.enqueue([currentRoomID])
+        while q.size() > 0:
+        # get the rooms
+            room_set = q.dequeue()
+         # grab the last room
+            last_room = room_set[-1]
+
+            if last_room not in visitedRoom:
+                visitedRoom.add(room_set)
+            for exit in room_map[last_room]:
+            # if unvisited, return the current room
+                if room_map[last_room][exit] == '?':
+                    return room_set
+                else:
+                    newPath = list(room_set)
+                    newPath.append(room_map[last_room][exit])
+                    # enque the new path
+                    q.enqueue(newPath)
+        return None
+
+# create queue
     q = Queue()
-    visitedRoom = set()
-    path = {}
-    q.enqueue(currentRoom)
-    path[currentRoom] = [currentRoom]
+
+# call get_unexplored_room with queue and player
+    trackNewRooms(q)
+
+# while there is still an unexplored room
     while q.size() > 0:
-        roomID = q.dequeue()
-        visitedRoom.add(roomID)
-        for traversedRoom in roomGraph[roomID][1].values():
-            if traversedRoom in visitedRoom:
-                continue
-            newPath = list(path[roomID])
-            newPath.append(traversedRoom)
-            path[traversedRoom] = newPath
-            if not checkRooms(traversedRoom):
-                actualPath = path[traversedRoom]
-                direction = [directionToRoom(actualPath[i], actualPath[i + 1]) for i in range(len(actualPath) - 1)]
-                return (direction, actualPath[len(actualPath) - 1])
-            q.enqueue(traversedRoom)
-    return None
-# traverse rooms using dft starting from room 0
-currentRoom = 0
-while True:
-    while not checkRooms(currentRoom):
-        currentRoom = trackNewRooms(currentRoom)
-        # mark every room as seen_room
-        # add it to traversal path
+        with open(my_file, "r") as f:
+    # read the map from room_graph file
+            room_map = json.loads(f.read())
 
-    # if no more rooms, loop back to the first room with other unseen rooms
-    # use bfs to get from the dead end to the room with unexplored rooms if we can
-    # mark every room it went throught as seen
-    prevRoom = stepBackToPrev()
-    # get (directions it went back through, destination room) or None
-    # if can't trace back, don't add to path
-    if prevRoom:
-        newPath = prevRoom[0]
-        traversalPath.extend(newPath)
-        currentRoom = prevRoom[1]
-    else:
-        break
+        with open(my_file2, "r") as f:
+    # read the map from room_details file
+            room_details = json.loads(f.read())
+
+    # current players position
+        current_player_position = str(room_details[-1]["room_id"])
+
+    # the next direction
+        next_direction = q.dequeue()
 
 
-# # TRAVERSAL TEST
-# visited_rooms = set()
-# player.currentRoom = world.startingRoom
-# visited_rooms.add(player.currentRoom)
-# for move in traversalPath:
-#     player.travel(move)
-#     visited_rooms.add(player.currentRoom)
+    # move the player in that direction
+        # move_player(next_direction)
 
-# if len(visited_rooms) == len(roomGraph):
-#     print(f"TESTS PASSED: {len(traversalPath)} moves, {len(visited_rooms)} rooms visited")
-# else:
-#     print("TESTS FAILED: INCOMPLETE TRAVERSAL")
-#     print(f"{len(roomGraph) - len(visited_rooms)} unvisited rooms")
+    # add it to the traversal path
+        traversalPath.append(next_direction)
+
+    # get the response
+        data = move_player(next_direction)
+        # print('*************', data)
+        # load rooms to database
+        new_room = Room(title=data['title'], id=data['room_id'], description=data['description'])
+        # new_room.save()
+        print('+++++++', new_room)
+
+    # set the player's destination room
+    # add it to the room_datails
+        room_details.append(data)
+
+    # new player position
+        destination_room = str(room_details[-1]["room_id"])
+
+    # update the map with the new discovery
+        room_map[current_player_position][next_direction] = destination_room
+
+    # if the current room has not been added to the map
+        if destination_room not in room_map:
+            exits = data["exits"]
+            directions = {}
+
+            for d in exits:
+                directions[d] = "?"
+
+        # add it and set to empty dictionary
+            room_map[destination_room] = directions
+
+    # get reverse direction to set it in the previous room
+        r_direction = reverse_directions[next_direction]
+    # point the destination room to the previous room
+        room_map[destination_room][r_direction] = current_player_position
+
+    # write the new changes to the file
+        with open(my_file, "w") as f:
+            f.write(json.dumps(room_map))
+
+        with open(my_file2, "w") as f:
+            f.write(json.dumps(room_details))
 
 
-#######
-# UNCOMMENT TO WALK AROUND
-#######
-# player.currentRoom.printRoomDescription(player)
-# while True:
-#     cmds = input("-> ").lower().split(" ")
-#     if cmds[0] in ["n", "s", "e", "w"]:
-#         player.travel(cmds[0], True)
-#     else:
-#         print("I did not understand that command.")
+    # call get_unexplored_room to add the next direction to the queue
+        trackNewRooms(q)
