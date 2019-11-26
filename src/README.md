@@ -1,1 +1,1 @@
-Test slack integration
+Treasure Hunt
