@@ -42,13 +42,6 @@ while len(traversalGraph) < 500:
             for item in currentRoom_data['items']:
                 api_request('/take', "POST", {"name":item})
                 print(f"picked up item - {item}")
-    
-    if str(currentRoom) == '1':
-        inventory = api_request('/status', "POST")
-        if len(inventory['inventory']) > 0:
-            for item in inventory['inventory']:
-                api_request('/sell', "POST", {"name": item,  "confirm": "yes"})
-                print(f"sold {item}")
 
     if currentRoom not in traversalGraph:
         room_details.append(currentRoom_data)
