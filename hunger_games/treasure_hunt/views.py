@@ -4,6 +4,7 @@ from .adv import advfunc
 
 # Create your views here.
 
+
 def response(request):
     advfunc()
     return HttpResponse('hello')

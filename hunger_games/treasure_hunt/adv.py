@@ -11,8 +11,6 @@ my_file = os.path.join(THIS_FOLDER, 'room_graph.py')
 my_file2 = os.path.join(THIS_FOLDER, 'room_details.py')
 
 
-
-
 # cache room map
 room_map = {}
 
@@ -23,6 +21,8 @@ traversalPath = []  # populate with n/s/e/w
 
 # function to traverse graph
 # checks if any room around hasn't been seen
+
+
 def advfunc():
     # room = get_data()
     # move = move_player('n')
@@ -32,11 +32,11 @@ def advfunc():
     # new_room.save()
     # print('+++++++', new_room)
     with open(my_file, "r") as f:
-    # read the map from room_graph file
+        # read the map from room_graph file
         room_map = json.loads(f.read())
 
     with open(my_file2, "r") as f:
-    # read the map from room_details file
+        # read the map from room_details file
         room_details = json.loads(f.read())
 
 # get players current room which is the last room in room details
@@ -61,33 +61,35 @@ def advfunc():
         currentRoom = room_map[currentRoomID]
         # cache unvisited paths
         unvisited_paths = []
-    
-    #loop through current room
+
+    # loop through current room
         for d in currentRoom:
             if currentRoom[d] == '?':
-            # add to unvisited path
+                # add to unvisited path
                 unvisited_paths.append(d)
             # print('You shall not pass!!!!')
     # if there are unvisted rooms
         if unvisited_paths:
-        # add first room to queue
+            # add first room to queue
             queue.enqueue(unvisited_paths[0])
         else:
-        # trace back abd find other rooms
+            # trace back abd find other rooms
             unvisited_path = stepBackToPrev()
 
         # if there are unvisited rooms
             if unvisited_path is not None:
-            # loop through the unvisited paths
+                # loop through the unvisited paths
                 for path in unvisited_path:
-                # check exits in current room
+                    # check exits in current room
                     for exit in currentRoom:
-                    # if path is in current room, enqueue
+                        # if path is in current room, enqueue
                         if currentRoom[exit] == path:
                             queue.enqueue(exit)
 
 
 # function to step back to previous rooms
+
+
     def stepBackToPrev():
         """Uses bft to find the path to the closest room with an unexplored
         direction. When it finds one it returns the path. Returns None
@@ -104,7 +106,7 @@ def advfunc():
     # enqueue the current room as a list
         q.enqueue([currentRoomID])
         while q.size() > 0:
-        # get the rooms
+            # get the rooms
             room_set = q.dequeue()
          # grab the last room
             last_room = room_set[-1]
@@ -112,7 +114,7 @@ def advfunc():
             if last_room not in visitedRoom:
                 visitedRoom.add(room_set)
             for exit in room_map[last_room]:
-            # if unvisited, return the current room
+                # if unvisited, return the current room
                 if room_map[last_room][exit] == '?':
                     return room_set
                 else:
@@ -131,11 +133,11 @@ def advfunc():
 # while there is still an unexplored room
     while q.size() > 0:
         with open(my_file, "r") as f:
-    # read the map from room_graph file
+            # read the map from room_graph file
             room_map = json.loads(f.read())
 
         with open(my_file2, "r") as f:
-    # read the map from room_details file
+            # read the map from room_details file
             room_details = json.loads(f.read())
 
     # current players position
@@ -143,7 +145,6 @@ def advfunc():
 
     # the next direction
         next_direction = q.dequeue()
-
 
     # move the player in that direction
         # move_player(next_direction)
@@ -155,7 +156,8 @@ def advfunc():
         data = move_player(next_direction)
         print('*************', data)
         # load rooms to database
-        new_room = Room(title=data['title'], id=data['room_id'], description=data['description'])
+        new_room = Room(
+            title=data['title'], id=data['room_id'], description=data['description'])
         # new_room.save()
         print('+++++++', new_room)
 
@@ -191,7 +193,6 @@ def advfunc():
 
         with open(my_file2, "w") as f:
             f.write(json.dumps(room_details))
-
 
     # call get_unexplored_room to add the next direction to the queue
         trackNewRooms(q)
